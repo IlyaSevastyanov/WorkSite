@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Список рейсов</h1>
+
+<!-- Форма фильтрации -->
+<form method="get" action="/flights">
+    <label for="status">Фильтр по статусу:</label>
+    <select name="status" id="status" class="form-select">
+        <option value="">Все</option>
+        <option value="Ожидание" {% if flight_status_filter == 'Ожидание' %}selected{% endif %}>Ожидание</option>
+        <option value="Отправлен" {% if flight_status_filter == 'Отправлен' %}selected{% endif %}>Отправлен</option>
+        <option value="Отменен" {% if flight_status_filter == 'Отменен' %}selected{% endif %}>Отменен</option>
+    </select>
+    <button type="submit" class="btn btn-primary mt-2">Применить</button>
+</form>
+
+<!-- Таблица рейсов -->
+{% if flights %}
+    <table class="table table-striped mt-4">
+        <thead>
+            <tr>
+                <th>Маршрут</th>
+                <th>Дата отправления</th>
+                <th>Время отправления</th>
+                <th>Статус рейса</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for flight in flights %}
+                <tr>
+                    <td>{{ flight[0] }}</td>
+                    <td>{{ flight[1] }}</td>
+                    <td>{{ flight[2] }}</td>
+                    <td>{{ flight[3] }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p class="mt-4">Нет доступных рейсов.</p>
+{% endif %}
+{% endblock %}
