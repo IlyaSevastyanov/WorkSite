@@ -10,7 +10,9 @@
     <div class="container">
         <div class="mt-4">
             <a href="{{ url_for('index') }}" class="btn btn-secondary">Главная</a>
+            <a href="{{ url_for('buses') }}" class="btn btn-secondary">Автобусы</a>
             <a href="{{ url_for('flights') }}" class="btn btn-secondary">Рейсы</a>
+            <a href="{{ url_for('stops') }}" class="btn btn-secondary">Остановки</a>
         </div>
         <hr>
         {% block content %}{% endblock %}

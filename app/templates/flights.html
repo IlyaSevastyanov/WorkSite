@@ -1,31 +1,50 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }}</title>
-</head>
-<body>
-    <h1>{{ title }}</h1>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Номер рейса</th>
-                <th>Дата отправления</th>
-                <th>Время отправления</th>
-                <th>Статус рейса</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for flight in flights %}
-                <tr>
-                    <td>{{ flight[0] }}</td>
-                    <td>{{ flight[1] }}</td>
-                    <td>{{ flight[2] }}</td>
-                    <td>{{ flight[3] }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+
+<form method="get" action="{{ url_for('flights') }}" class="mb-3">
+    <div class="row">
+        <div class="col-md-3">
+            <label for="route_id" class="form-label">Номер маршрута</label>
+            <input type="text" class="form-control" id="route_id" name="route_id" value="{{ request.args.get('route_id', '') }}">
+        </div>
+        <div class="col-md-3">
+            <label for="departure_date" class="form-label">Дата отправления</label>
+            <input type="date" class="form-control" id="departure_date" name="departure_date" value="{{ selected_date }}">
+        </div>
+        <div class="col-md-3 align-self-end">
+            <button type="submit" class="btn btn-primary">Применить</button>
+        </div>
+    </div>
+</form>
+
+{% if message %}
+<div class="alert alert-warning" role="alert">
+    {{ message }}
+</div>
+{% else %}
+<p>Выбрана дата: {{ selected_date }}</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Номер рейса</th>
+            <th>Дата отправления</th>
+            <th>Время отправления</th>
+            <th>Статус рейса</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for flight in flights %}
+        <tr>
+            <td>{{ flight[0] }}</td>
+            <td>{{ flight[1] }}</td>
+            <td>{{ flight[2] }}</td>
+            <td>{{ flight[3] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% endblock %}

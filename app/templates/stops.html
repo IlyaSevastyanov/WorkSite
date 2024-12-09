@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Название остановки</th>
+            <th>Адрес</th>
+            <th>Номер рейса</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for stop in stops %}
+        <tr>
+            <td>{{ stop[0] }}</td>
+            <td>{{ stop[1] }}</td>
+            <td>{{ stop[2] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

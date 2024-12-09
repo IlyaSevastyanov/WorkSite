@@ -1,0 +1,1 @@
+python -m flask --app C:\Users\irc7e\PycharmProjects\course_project\main.py --debug run

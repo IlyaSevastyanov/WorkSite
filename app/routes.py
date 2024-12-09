@@ -1,15 +1,7 @@
-from flask import request
-from app import app
 from flask import render_template
+from app import app
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def index():
-    if request.method == 'GET':
-        return render_template('index.html', title='Главная', text='Hello, World! (GET-запрос)')
-    elif request.method == 'POST':
-        return 'Hello, World! (POST-запрос)'
-    else:
-        return 'Неизвестный метод запроса'
-
-
+    return render_template('index.html', title='Главная страница')
 

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Гос. номер</th>
+            <th>Модель</th>
+            <th>Бренд</th>
+            <th>Вместимость</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for bus in buses %}
+        <tr>
+            <td>{{ bus[0] }}</td>
+            <td>{{ bus[1] }}</td>
+            <td>{{ bus[2] }}</td>
+            <td>{{ bus[3] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
