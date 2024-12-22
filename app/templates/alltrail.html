@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Список маршрутов</h1>
+    <ul class="list-group">
+        {% for route in all_routes %}
+        <li class="list-group-item">
+            {{ route[1] }}
+        </li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('trail') }}" class="btn btn-primary mt-3">Перейти к выбору предпочитаемых маршрутов</a>
+    <a href="{{ url_for('index') }}" class="btn btn-secondary mt-3">Вернуться на главную страницу</a>
+</div>
+{% endblock %}
+

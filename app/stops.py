@@ -3,7 +3,11 @@ from flask import render_template
 from app import app
 import psycopg
 
+from app.auth import registration_required
+
+
 @app.route('/stops')
+@registration_required
 def stops():
     try:
         with psycopg.connect(
