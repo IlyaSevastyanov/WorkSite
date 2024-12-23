@@ -9,6 +9,8 @@ def registration_required(f):
             return redirect(url_for('login'))  # Перенаправление на страницу входа, если пользователь не зарегистрирован
         return f(*args, **kwargs)  # Если проверка пройдена, выполняется оригинальная функция
     return decorated_function
+
+
 # Проверяет, имеет ли пользователь требуемую роль
 def role_required(required_role):  # Принимает необходимую роль в качестве аргумента
     def decorator(f):

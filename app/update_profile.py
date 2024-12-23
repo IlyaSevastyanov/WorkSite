@@ -12,7 +12,6 @@ def update_profile():
         phone_number = request.form.get('phone_number', '').strip()  # Номер телефона
         first_name = request.form.get('first_name', '').strip()  # Имя
         surname = request.form.get('surname', '').strip()  # Фамилия
-        email = request.form.get('email', '').strip()  # Email
         receive_notifications = request.form.get('receive_notifications') == 'on'  # Чекбокс уведомлений
 
         # Проверка корректности данных
@@ -33,14 +32,14 @@ def update_profile():
                 dbname=app.config['DB_NAME']  # Имя базы данных
         ) as con:
             with con.cursor() as cur:
-                # Обновление данных пользователя
+                # Обновление данных пользователя без изменения email
                 cur.execute(
                     '''
                     UPDATE p_user
-                    SET city = %s, phone_number = %s, first_name = %s, surname = %s, e_mail = %s, receive_notifications = %s
+                    SET city = %s, phone_number = %s, first_name = %s, surname = %s, receive_notifications = %s
                     WHERE id = %s
                     ''',
-                    (city, phone_number, first_name, surname, email, receive_notifications, session['user_id'])
+                    (city, phone_number, first_name, surname, receive_notifications, session['user_id'])
                 )
                 con.commit()  # Сохранение изменений в базе данных
 
