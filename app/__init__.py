@@ -1,5 +1,5 @@
 from flask import Flask
-from flask_bootstrap5 import Bootstrap5
+from flask_bootstrap import Bootstrap5
 from app.config import Config
 
 # Инициализация приложения Flask
