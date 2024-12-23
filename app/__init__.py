@@ -27,3 +27,4 @@ from app import delete_route
 from app import users
 from app import role_required
 from app import user_trail
+from app import logout

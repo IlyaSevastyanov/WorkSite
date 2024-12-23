@@ -1,7 +1,9 @@
 from app import app
 import psycopg
 from flask import render_template, flash, redirect, url_for, session
+from werkzeug.security import generate_password_hash
 from app.forms import RegistrationForm
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
@@ -21,21 +23,16 @@ def register():
                         flash('Пользователь с таким email уже существует.', 'danger')
                         return render_template('registration.html', form=form)
 
-                    # Проверка уникальности пароля
-                    cur.execute('SELECT id FROM p_user WHERE password = crypt(%s, password)', (form.password.data,))
-                    if cur.fetchone():
-                        flash('Пользователь с таким паролем уже существует.', 'danger')
-                        return render_template('registration.html', form=form)
-
-                    # Добавление нового пользователя
+                    # Добавление нового пользователя с хешированием пароля
+                    hashed_password = generate_password_hash(form.password.data)
                     cur.execute(
                         '''
                         INSERT INTO p_user (e_mail, password, first_name, surname, phone_number)
-                        VALUES (%s, crypt(%s, gen_salt('bf')), %s, %s, %s)
-                        ''',
-                        (
+                        VALUES (%s, %s, %s, %s, %s)
+                        '''
+                        , (
                             form.email.data,
-                            form.password.data,
+                            hashed_password,
                             form.first_name.data,
                             form.surname.data,
                             form.phone_number.data

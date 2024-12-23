@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Список маршрутов</h1>
+  <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Название маршрута</th>
+                <th>Время в пути</th>
+                <th>Стоимость</th>
+                <th>Госномер автобуса</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for route in all_routes %}
+            <tr>
+                <td>{{ route[1] }}</td> <!-- Название маршрута -->
+                <td>{{ route[2] }}</td> <!-- Время в пути -->
+                <td>{{ route[3] }} руб.</td> <!-- Стоимость -->
+                <td>{{ route[4] }}</td> <!-- Госномер автобуса -->
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ url_for('trail') }}" class="btn btn-primary mt-3">Перейти к выбору предпочитаемых маршрутов</a>
+</div>
+{% endblock %}
