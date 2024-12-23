@@ -1,17 +1,19 @@
-from flask import flash
-from app import app
+
+from flask import flash, render_template, session, redirect, url_for
 import psycopg
-from flask import render_template, session
+from app import app
 from app.auth import registration_required
 
 @app.route('/profile', methods=['GET'])
 @registration_required
 def profile():
     try:
-        # Проверка наличия flash-сообщения из сессии
-        if 'flash_message' in session:
-            flash_message = session.pop('flash_message')  # Удаляем сообщение после обработки
-            flash(flash_message['message'], flash_message['category'])
+
+        user_id = session.get('user_id')
+        if not user_id:
+            flash('Пользователь не аутентифицирован.', 'danger')
+            return redirect(url_for('login'))
+
         with psycopg.connect(
                 host=app.config['DB_SERVER'],
                 user=app.config['DB_USER'],
@@ -23,27 +25,28 @@ def profile():
                 # Основные данные пользователя
                 cur.execute(
                     '''
-                    SELECT first_name, surname, e_mail, phone_number, city 
-                    FROM p_user 
+                    SELECT first_name, surname, e_mail, phone_number, city, receive_notifications
+                    FROM p_user
                     WHERE id = %s
                     ''',
-                    (session['user_id'],)
+                    (user_id,)
                 )
                 user_data = cur.fetchone()
 
                 if not user_data:
                     flash('Пользователь не найден.', 'danger')
-                    raise ValueError("Пользователь не найден")
+                    raise ValueError("Пользователь не найден.")
 
                 user = {
                     'first_name': user_data[0],
                     'surname': user_data[1],
                     'email': user_data[2],
                     'phone_number': user_data[3],
-                    'city': user_data[4]
+                    'city': user_data[4],
+                    'receive_notifications': user_data[5]
                 }
 
-                # Получение предпочитаемых маршрутов
+                # Предпочитаемые маршруты
                 cur.execute(
                     '''
                     SELECT r.id, r.route_name
@@ -51,12 +54,10 @@ def profile():
                     JOIN routes r ON pp.preferred_route_id = r.id
                     WHERE pp.user_id = %s
                     ''',
-                    (session['user_id'],)
+                    (user_id,)
                 )
                 preferred_routes = cur.fetchall()
-                if not preferred_routes:
-                 session['flash_message'] = {'message': 'Нет предпочитаемых маршрутов.', 'category': 'info'}
-                # Получение ближайших рейсов для каждого маршрута
+
                 nearest_flights = []
                 for route_id, route_name in preferred_routes:
                     cur.execute(
@@ -72,32 +73,26 @@ def profile():
                     flight = cur.fetchone()
                     nearest_flights.append({
                         'route_name': route_name,
-                        'flight': flight  # None, если рейсов нет
+                        'flight': flight
                     })
 
                 # История поездок
                 cur.execute(
                     '''
-SELECT 
-    th.id,  -- ID записи из trip_history
-    TO_CHAR(th.created_at, 'YYYY-MM-DD HH24:MI:SS') AS formatted_created_at,  -- Форматированная дата добавления
-    r.route_name,            -- Название маршрута
-    f.id AS flight_id,       -- ID рейса маршрута
-    f.departure_date,        -- Дата рейса
-    f.dispatch_time,         -- Время отправления рейса
-    b.state_number,          -- Гос. номер автобуса
-    b.model,                 -- Модель автобуса
-    r.cost                   -- Стоимость рейса
-FROM trip_history th
-JOIN flights f ON th.flight_id = f.id
-JOIN routes r ON f.route_id = r.id
-JOIN buses b ON r.bus_id = b.id
-WHERE th.user_id = %s
-ORDER BY th.created_at DESC;
-
-
+                    SELECT 
+                        th.id,  
+                        TO_CHAR(th.created_at, 'YYYY-MM-DD HH24:MI:SS') AS formatted_created_at,
+                        r.route_name, f.id AS flight_id,
+                        f.departure_date, f.dispatch_time,
+                        b.state_number, b.model, b.brand, r.cost
+                    FROM trip_history th
+                    JOIN flights f ON th.flight_id = f.id
+                    JOIN routes r ON f.route_id = r.id
+                    JOIN buses b ON r.bus_id = b.id
+                    WHERE th.user_id = %s
+                    ORDER BY th.created_at DESC;
                     ''',
-                    (session['user_id'],)
+                    (user_id,)
                 )
                 trip_history = cur.fetchall()
 
@@ -105,13 +100,26 @@ ORDER BY th.created_at DESC;
                 cur.execute("SELECT id, route_name FROM routes")
                 all_routes = cur.fetchall()
 
+                # Уведомления
+                cur.execute(
+                    '''
+                    SELECT id, message, TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS'), status
+                    FROM notifications
+                    WHERE user_id = %s
+                    ORDER BY created_at DESC
+                    ''',
+                    (user_id,)
+                )
+                notifications = cur.fetchall()
+
         return render_template(
             'user.html',
             user=user,
             preferred_routes=preferred_routes,
             nearest_flights=nearest_flights,
             trip_history=trip_history,
-            all_routes=all_routes
+            all_routes=all_routes,
+            notifications=notifications
         )
 
     except psycopg.Error as e:

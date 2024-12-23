@@ -38,7 +38,14 @@
             <a href="{{ url_for('buses') }}" class="btn btn-secondary">Автобусы</a>
             <a href="{{ url_for('flights') }}" class="btn btn-secondary">Рейсы</a>
             <a href="{{ url_for('stops') }}" class="btn btn-secondary">Остановки</a>
-            <a href="{{ url_for('alltrail') }}" class="btn btn-secondary">Маршруты</a>
+            <a href="{{ url_for('user_trail') }}" class="btn btn-secondary">Маршруты</a>
+          {% if session.get('user_role') == 'Администратор' %}
+    <a href="{{ url_for('alltrail') }}" class="btn btn-secondary">Изменение маршрутов</a>
+{% endif %}
+            {% if session.get('user_role') == 'Администратор' %}
+    <a href="{{ url_for('users') }}" class="btn btn-secondary">Пользователи</a>
+{% endif %}
+
 
         </div>
         <hr>

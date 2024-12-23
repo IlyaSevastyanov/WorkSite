@@ -22,7 +22,7 @@
                             Мой аккаунт
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
-                            <li><a class="dropdown-item" href="/profile">Перейти в профиль</a></li>
+                            <li><a class="dropdown-item" href="/">Главная</a></li>
                            <li><a class="dropdown-item" href="{{ url_for('logout') }}">Выйти из аккаунта</a></li>
 
                         </ul>
@@ -31,148 +31,177 @@
             </div>
         </div>
     </nav>
-
 <div class="container mt-5">
-    <div id="main-content">
-        <div class="row">
-            <!-- Основная информация -->
-            <div class="col-md-8">
-                <h1 class="mb-4">Профиль: {{ user.first_name }} {{ user.surname }}</h1>
-                <form method="POST" action="{{ url_for('update_profile') }}">
-                    <!-- Поле для имени -->
-                    <div class="mb-3">
-                        <label for="firstName" class="form-label">Имя</label>
-                        <input type="text" class="form-control" id="firstName" name="first_name" value="{{ user.first_name }}" required>
-                    </div>
-                    <!-- Поле для фамилии -->
-                    <div class="mb-3">
-                        <label for="surname" class="form-label">Фамилия</label>
-                        <input type="text" class="form-control" id="surname" name="surname" value="{{ user.surname }}" required>
-                    </div>
-                    <!-- Поле для email -->
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Электронная почта</label>
-                        <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
-                    </div>
-                    <!-- Поле для телефона -->
-                    <div class="mb-3">
-                        <label for="phoneNumber" class="form-label">Номер телефона</label>
-                        <input type="text" class="form-control" id="phoneNumber" name="phone_number" maxlength="15" value="{{ user.phone_number }}">
-                    </div>
-                    <!-- Поле для города -->
-                    <div class="mb-3">
-                        <label for="city" class="form-label">Город</label>
-                        <input type="text" class="form-control" id="city" name="city" maxlength="50" value="{{ user.city }}">
-                    </div>
-                    <!-- Кнопки -->
-                     <div class="mb-3">
-                        <a href="{{ url_for('trail') }}" class="btn btn-secondary mt-3">Изменить маршруты</a>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Сохранить изменения</button>
-                    <button type="reset" class="btn btn-secondary">Сбросить</button>
-                </form>
-            </div>
-
-            <!-- Предпочитаемые маршруты -->
-            <div class="col-md-4">
-                <h2 class="mb-4">Предпочитаемые маршруты</h2>
-                <ul class="list-group">
-                    {% for route in preferred_routes %}
-                    <li class="list-group-item">
-                        <strong>{{ route[1] }}</strong>
-                        {% for flight in nearest_flights %}
-                            {% if flight.route_name == route[1] %}
-                                {% if flight.flight %}
-                                <br>
-                                <small>
-                                    <strong>Ближайший рейс:</strong><br>
-                                    Дата: {{ flight.flight[0] }}<br>
-                                    Время отправления: {{ flight.flight[1] }}<br>
-                                    Статус: {{ flight.flight[2] }}
-                                </small>
-                                {% else %}
-                                <small>Ближайший рейс не найден</small>
-                                {% endif %}
-                            {% endif %}
-                        {% endfor %}
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
+    <div class="row">
+        <!-- Основная информация -->
+        <div class="col-lg-6">
+            <h1 class="mb-4">Профиль: {{ user.first_name }} {{ user.surname }}</h1>
+            <form method="POST" action="{{ url_for('update_profile') }}">
+                <div class="mb-3">
+                    <label for="firstName" class="form-label">Имя</label>
+                    <input type="text" class="form-control" id="firstName" name="first_name" value="{{ user.first_name }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="surname" class="form-label">Фамилия</label>
+                    <input type="text" class="form-control" id="surname" name="surname" value="{{ user.surname }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Электронная почта</label>
+                    <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="phoneNumber" class="form-label">Номер телефона</label>
+                    <input type="text" class="form-control" id="phoneNumber" name="phone_number" maxlength="15" value="{{ user.phone_number }}">
+                </div>
+                <div class="mb-3">
+                    <label for="city" class="form-label">Город</label>
+                    <input type="text" class="form-control" id="city" name="city" maxlength="50" value="{{ user.city }}">
+                </div>
+                <div class="form-check mb-3">
+                    <input type="checkbox" class="form-check-input" id="receiveNotifications" name="receive_notifications" {% if user.receive_notifications %}checked{% endif %}>
+                    <label class="form-check-label" for="receiveNotifications">Хочу получать уведомления</label>
+                </div>
+                <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+            </form>
         </div>
 
-        <div class="row mt-5">
-            <!-- История поездок -->
-            <div class="col-md-8">
-<div class="mb-3">
-    <h2>История поездок</h2>
-    {% if trip_history %}
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Дата добавления</th>
-                <th>Маршрут</th>
-                <th>Рейс</th>
-                <th>Дата рейса</th>
-                <th>Время отправления рейса</th>
-                <th>Стоимость</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for trip in trip_history %}
- <tr>
-    <td>{{ trip[1] }}</td> <!-- Дата добавления -->
-    <td>{{ trip[2] }}</td> <!-- Название маршрута -->
-    <td>{{ trip[3] }}</td> <!-- ID рейса -->
-    <td>{{ trip[4] }}</td> <!-- Дата рейса -->
-    <td>{{ trip[5] }}</td> <!-- Время рейса -->
-    <td>{{ trip[8] }} руб.</td> <!-- Стоимость -->
-    <td>
-        <!-- Кнопка удаления -->
-        <form method="POST" action="{{ url_for('delete_trip', trip_id=trip[0]) }}" style="display:inline;">
-            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Вы уверены, что хотите удалить эту поездку?');">Удалить</button>
-        </form>
-    </td>
-</tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        <!-- Предпочитаемые маршруты -->
+        <div class="col-lg-3">
+            <h2 class="mb-4">Предпочитаемые маршруты</h2>
+            {% if preferred_routes %}
+            <ul class="list-group">
+                {% for route in preferred_routes %}
+                <li class="list-group-item">
+                    <strong>{{ route[1] }}</strong>
+                    {% for flight in nearest_flights %}
+                        {% if flight.route_name == route[1] %}
+                            {% if flight.flight %}
+                            <br>
+                            <small>
+                                <strong>Ближайший рейс:</strong><br>
+                                Дата: {{ flight.flight[0] }}<br>
+                                Время отправления: {{ flight.flight[1] }}<br>
+                                Статус: {{ flight.flight[2] }}
+                            </small>
+                            {% else %}
+                            <small>Ближайший рейс не найден</small>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>Нет предпочитаемых маршрутов.</p>
+            {% endif %}
+
+    <!-- Кнопка для выбора предпочитаемых маршрутов -->
+    <a href="{{ url_for('trail') }}" class="btn btn-primary mt-3">Выбрать предпочитаемый маршрут</a>
+        </div>
+
+       <!-- Уведомления -->
+<div class="col-lg-3">
+    <h2 class="mb-4">Уведомления</h2>
+    {% if notifications %}
+    {% if session.get('user_role') == 'Администратор' %}
+      <form method="POST" action="{{ url_for('delete_all_notifications') }}" style="margin-bottom: 15px;">
+        <button type="submit" class="btn btn-danger btn-sm">Удалить все уведомления</button>
+    </form>
+{% endif %}
+    <ul class="list-group">
+        {% for notification in notifications %}
+        <li id="notification-{{ notification[0] }}" class="list-group-item {% if notification[3] == 'unread' %}list-group-item-warning{% endif %}">
+            <strong>{{ notification[1] }}</strong> <!-- Текст уведомления -->
+            <br>
+            <small>Дата уведомления: {{ notification[2] }}</small> <!-- Дата создания -->
+            <button class="btn btn-sm btn-secondary mt-2" onclick="removeNotification({{ notification[0] }})">Убрать</button>
+        </li>
+        {% endfor %}
+    </ul>
     {% else %}
-    <p>История поездок отсутствует.</p>
+    <p>Уведомления отсутствуют.</p>
     {% endif %}
 </div>
 
-            </div>
 
-            <!-- Добавить поездку -->
-            <div class="col-md-4">
-                <h3 class="mb-4">Добавить поездку</h3>
-                <form method="POST" action="{{ url_for('update_trip') }}">
-                    <div class="mb-3">
-                        <label for="route" class="form-label">Маршрут</label>
-                        <select class="form-select" id="route" name="route_id" onchange="updateFlights(this.value)">
-                            <option value="">Выберите маршрут</option>
-                            {% for route in all_routes %}
-                            <option value="{{ route[0] }}">{{ route[1] }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="mb-3" id="flightsContainer" style="display: none;">
-                        <label for="flight" class="form-label">Рейс</label>
-                        <select class="form-select" id="flight" name="flight_id">
-                            <option value="">Выберите рейс</option>
-                        </select>
-                    </div>
-                    <div id="flightDetails" style="display: none;">
-                        <h4>Информация о рейсе</h4>
-                        <p id="busInfo"></p>
-                    </div>
-                    <button type="submit" class="btn btn-primary mt-3">Добавить поездку</button>
-                </form>
-            </div>
+
+    </div>
+
+    <!-- История поездок -->
+    <div class="row mt-5">
+        <div class="col-lg-8">
+            <h2>История поездок</h2>
+            {% if trip_history %}
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Дата добавления</th>
+                        <th>Маршрут</th>
+                        <th>Рейс</th>
+                        <th>Дата рейса</th>
+                        <th>Время отправления рейса</th>
+                        <th>Гос. номер автобуса</th>
+                        <th>Модель</th>
+                        <th>Бренд</th>
+                        <th>Стоимость</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for trip in trip_history %}
+                    <tr>
+                        <td>{{ trip[1] }}</td>
+                        <td>{{ trip[2] }}</td>
+                        <td>{{ trip[3] }}</td>
+                        <td>{{ trip[4] }}</td>
+                        <td>{{ trip[5] }}</td>
+                        <td>{{ trip[6] }}</td>
+                        <td>{{ trip[7] }}</td>
+                        <td>{{ trip[8] }}</td>
+                        <td>{{ trip[9] }} руб.</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('delete_trip', trip_id=trip[0]) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Вы уверены, что хотите удалить эту поездку?');">Удалить</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>История поездок отсутствует.</p>
+            {% endif %}
+        </div>
+
+        <!-- Добавить поездку -->
+        <div class="col-lg-4">
+            <h3 class="mb-4">Добавить поездку</h3>
+            <form method="POST" action="{{ url_for('update_trip') }}">
+                <div class="mb-3">
+                    <label for="route" class="form-label">Маршрут</label>
+                    <select class="form-select" id="route" name="route_id" onchange="updateFlights(this.value)">
+                        <option value="">Выберите маршрут</option>
+                        {% for route in all_routes %}
+                        <option value="{{ route[0] }}">{{ route[1] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3" id="flightsContainer" style="display: none;">
+                    <label for="flight" class="form-label">Рейс</label>
+                    <select class="form-select" id="flight" name="flight_id">
+                        <option value="">Выберите рейс</option>
+                    </select>
+                </div>
+                <div id="flightDetails" style="display: none;">
+                    <h4>Информация о рейсе</h4>
+                    <p id="busInfo"></p>
+                </div>
+                <button type="submit" class="btn btn-primary mt-3">Добавить поездку</button>
+            </form>
         </div>
     </div>
 </div>
+
         <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
     <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
@@ -184,6 +213,7 @@
 </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/removeNotification.js') }}"></script>
 <script src="{{ url_for('static', filename='js/update_flights.js') }}"></script>
 <script src="{{ url_for('static', filename='js/toast_messages.js') }}"></script>
 <script>
@@ -207,5 +237,6 @@
     {% endif %}
     {% endwith %}
 </script>
+
 </body>
 </html>

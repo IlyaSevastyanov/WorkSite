@@ -19,7 +19,7 @@ def stops():
         ) as con:
             cur = con.cursor()
             stops_data = cur.execute(
-                'SELECT name, address, route_id FROM bus_stops'
+                'SELECT name, address, route_name FROM bus_stops'
             ).fetchall()
     except psycopg.Error as e:
         app.logger.error(f"Ошибка базы данных: {e}")

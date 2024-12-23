@@ -26,16 +26,17 @@ def flights():
             cur.execute("SELECT route_name FROM routes")
             routes = cur.fetchall()
 
-            # Определяем базовый запрос и параметры
+            # Основной запрос для отображения рейсов
             query = '''
-                SELECT f.id AS flight_id, r.route_name, f.departure_date, 
-                       f.dispatch_time, f.flight_status
-                FROM flights f
-                JOIN routes r ON f.route_id = r.id
-                WHERE (%s::TEXT IS NULL OR LOWER(r.route_name) = LOWER(%s::TEXT))
-            '''
+                          SELECT f.id AS flight_id, r.route_name, f.departure_date, 
+                                 f.dispatch_time, f.flight_status, b.state_number, 
+                                 r.cost
+                          FROM flights f
+                          JOIN routes r ON f.route_id = r.id
+                          JOIN buses b ON r.bus_id = b.id
+                          WHERE (%s::TEXT IS NULL OR LOWER(r.route_name) = LOWER(%s::TEXT))
+                      '''
             parameters = [route_name.strip() if route_name else None, route_name.strip() if route_name else None]
-
             # Если фильтр — только по маршруту (все рейсы этого маршрута)
             if filter_type == "all_routes":
                 query += '''

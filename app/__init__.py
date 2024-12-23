@@ -19,3 +19,11 @@ from app import alltrail
 from app import update_profile
 from app import update_trail
 from app import update_trip
+from app import notification
+from app import update_flight
+from app import create_route
+from app import update_route
+from app import delete_route
+from app import users
+from app import role_required
+from app import user_trail
