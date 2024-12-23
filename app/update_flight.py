@@ -102,7 +102,7 @@ def update_flight_bus(flight_id):
                 )
                 con.commit()
 
-        # Уведомление о изменении номера автобуса
+        # Уведомление об изменении номера автобуса
         notify_bus_change(flight_id, old_state_number, new_state_number)
 
         flash('Номер автобуса успешно обновлён.', 'success')

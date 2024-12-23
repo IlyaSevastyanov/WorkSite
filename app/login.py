@@ -2,8 +2,6 @@ from flask import session, render_template, flash, redirect, url_for, request
 from werkzeug.security import check_password_hash
 from app import app
 import psycopg
-
-from app.auth import registration_required
 from app.forms import LoginForm
 
 @app.route('/login', methods=['GET', 'POST'])

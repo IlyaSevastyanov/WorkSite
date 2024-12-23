@@ -62,7 +62,7 @@
             <!-- Поле "Номер телефона" -->
             <div class="mb-3">
                 {{ form.phone_number.label }}
-                {{ form.phone_number(class="form-control", placeholder="Введите номер телефона (например, +79991234567)") }}
+                {{ form.phone_number(class="form-control", placeholder="Введите номер телефона (например, 79991234567)") }}
                 {% for error in form.phone_number.errors %}
                     <div class="invalid-feedback d-block">{{ error }}</div>
                 {% endfor %}

@@ -1,5 +1,5 @@
 
-from flask import render_template, session, redirect, url_for, flash
+from flask import render_template
 from app import app
 from app.auth import registration_required
 
