@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+<form method="get" action="{{ url_for('flights') }}" class="mb-3">
+    <div class="row">
+        <div class="col-md-4">
+            <label for="route_name" class="form-label">Название маршрута</label>
+            <select id="route_name" name="route_name" class="form-control">
+                {% for route in routes %}
+                    <option value="{{ route[0] }}" {% if route[0] == request.args.get('route_name') %} selected {% endif %}>{{ route[0] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label for="departure_date" class="form-label">Дата отправления</label>
+            <input type="date" class="form-control" id="departure_date" name="departure_date" value="{{ selected_date }}">
+        </div>
+        <div class="col-md-3 align-self-end">
+            <button type="submit" class="btn btn-primary" name="filter" value="by_date">Применить</button>
+            <button type="submit" class="btn btn-secondary" name="filter" value="all_routes" title="Найти все рейсы по выбранному маршруту">Найти все</button>
+        </div>
+    </div>
+</form>
+
+{% if message %}
+<div class="alert alert-warning" role="alert">
+    {{ message }}
+</div>
+{% else %}
+<p>Выбрана дата: {{ "за все время" if request.args.get('filter') == 'all_routes' else (selected_date if selected_date else "Дата не выбрана") }}</p>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID рейса</th>
+            <th>Маршрут</th>
+            <th>Дата отправления</th>
+            <th>Время отправления</th>
+            <th>Статус рейса</th>
+            <th>Гос.Номер автобуса</th>
+            <th>Стоимость</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for flight in flights %}
+        <tr>
+            <td>{{ flight[0] }}</td> <!-- ID рейса -->
+            <td>{{ flight[1] }}</td> <!-- Маршрут -->
+            <td>{{ flight[2] }}</td> <!-- Дата отправления -->
+            <td>{{ flight[3] }}</td> <!-- Время отправления -->
+
+            <!-- Изменение статуса (только для администраторов) -->
+            <td>
+                {% if session.get('user_role') == 'Администратор' %}
+                <form method="POST" action="{{ url_for('update_flight_status', flight_id=flight[0]) }}">
+                    <select class="form-select" id="status" name="status">
+                        <option value="Отправлен" {% if flight[4] == 'Отправлен' %}selected{% endif %}>Отправлен</option>
+                        <option value="Задержан" {% if flight[4] == 'Задержан' %}selected{% endif %}>Задержан</option>
+                        <option value="Отменён" {% if flight[4] == 'Отменён' %}selected{% endif %}>Отменён</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary btn-sm mt-2">Сохранить</button>
+                </form>
+                {% else %}
+                {{ flight[4] }} <!-- Просто отображение статуса -->
+                {% endif %}
+            </td>
+
+            <!-- Изменение гос номера автобуса -->
+            <td>
+                {% if session.get('user_role') == 'Администратор' %}
+                <form method="POST" action="{{ url_for('update_flight_bus', flight_id=flight[0]) }}">
+                    <input type="text" class="form-control" id="stateNumber" name="state_number" value="{{ flight[5] }}">
+                    <button type="submit" class="btn btn-primary btn-sm mt-2">Сохранить</button>
+                </form>
+                {% else %}
+                {{ flight[5] }} <!-- Просто отображение гос номера -->
+                {% endif %}
+            </td>
+
+            <!-- Изменение стоимости -->
+            <td>
+                {% if session.get('user_role') == 'Администратор' %}
+                <form method="POST" action="{{ url_for('update_flight_cost', flight_id=flight[0]) }}">
+                    <input type="number" class="form-control" id="cost" name="cost" value="{{ flight[6] }}">
+                    <button type="submit" class="btn btn-primary btn-sm mt-2">Сохранить</button>
+                </form>
+                {% else %}
+                {{ flight[6] }} <!-- Просто отображение стоимости -->
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+<!-- Toast Notification -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1055;">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong id="toastTitle" class="me-auto"></strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div id="toastBody" class="toast-body"></div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Подключение JavaScript -->
+<script src="{{ url_for('static', filename='js/toast_messages.js') }}"></script>
+
+<script>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            showToast(
+                {% if category == "success" %}
+                    "Успешно!"
+                {% elif category == "danger" %}
+                    "Ошибка!"
+                {% elif category == "info" %}
+                    "Информация"
+                {% else %}
+                    "Уведомление"
+                {% endif %},
+                "{{ message }}",
+                "{{ category }}"
+            );
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+</script>
+{% endblock %}

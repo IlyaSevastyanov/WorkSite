@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Управление пользователями</h1>
+
+    <!-- Список пользователей -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Имя</th>
+                <th>Фамилия</th>
+                <th>Email</th>
+                <th>Телефон</th>
+                <th>Роль</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user[1] }}</td> <!-- Имя -->
+                <td>{{ user[2] }}</td> <!-- Фамилия -->
+                <td>{{ user[3] }}</td> <!-- Email -->
+                <td>{{ user[4] }}</td> <!-- Телефон -->
+                <td>{{ user[5] if user[5] else 'Пользователь' }}</td> <!-- Роль -->
+                <td>
+                    <!-- Кнопка редактирования -->
+                   <button class="btn btn-sm btn-primary" onclick="openEditRoleModal({{ user[0] }}, '{{ user[5] if user[5] else 'Пользователь' }}')">
+    Редактировать
+</button>
+
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Модальное окно для редактирования роли -->
+<div class="modal fade" id="editRoleModal" tabindex="-1" aria-labelledby="editRoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editRoleModalLabel">Редактировать роль пользователя</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <form method="POST" id="editRoleForm" action="{{ url_for('update_user_role') }}">
+                <div class="modal-body">
+                    <input type="hidden" id="editUserId" name="user_id">
+                    <div class="mb-3">
+                        <label for="editRole" class="form-label">Роль</label>
+                        <select class="form-select" id="editRole" name="role_id" required>
+                            <option value="1">Администратор</option>
+                            <option value="2">Пользователь</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                    <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1055;">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong id="toastTitle" class="me-auto"></strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div id="toastBody" class="toast-body"></div>
+    </div>
+</div>
+
+<!-- Подключение JavaScript -->
+<script src="{{ url_for('static', filename='js/openEditRoleModel.js') }}"></script>
+<script src="{{ url_for('static', filename='js/toast_messages.js') }}"></script>
+{% endblock %}

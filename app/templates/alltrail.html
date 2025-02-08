@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Управление маршрутами</h1>
+    <!-- Таблица маршрутов -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Название маршрута</th>
+                <th>Время в пути</th>
+                <th>Стоимость</th>
+                <th>Госномер автобуса</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for route in all_routes %}
+            <tr>
+                <td>{{ route[0] }}</td> <!-- ID маршрута -->
+                <td>{{ route[1] }}</td> <!-- Название маршрута -->
+                <td>{{ route[2] }}</td> <!-- Время в пути -->
+                <td>{{ route[3] }} руб.</td> <!-- Стоимость -->
+                <td>{{ route[4] }}</td> <!-- Госномер автобуса -->
+                <td>
+                    <!-- Кнопка редактирования -->
+                    <button class="btn btn-sm btn-primary ms-2"
+                            onclick="openEditRouteModal({{ route[0] }}, '{{ route[1] }}', '{{ route[2] }}', '{{ route[3] }}', '{{ route[4] }}')">
+                        Редактировать
+                    </button>
+                    <!-- Кнопка удаления -->
+                    <form method="POST" action="{{ url_for('delete_route', route_id=route[0]) }}" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Вы уверены, что хотите удалить маршрут?');">Удалить</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <!-- Форма создания нового маршрута -->
+    <h2>Создать новый маршрут</h2>
+    <form method="POST" id="routeForm" action="{{ url_for('create_route') }}">
+        <div class="mb-3">
+            <label for="routeName" class="form-label">Название маршрута</label>
+            <input type="text" class="form-control" id="routeName" name="route_name" required>
+        </div>
+        <div class="mb-3">
+            <label for="travelTime" class="form-label">Время в пути</label>
+            <input type="text" class="form-control" id="travelTime" name="travel_time" required>
+        </div>
+        <div class="mb-3">
+            <label for="cost" class="form-label">Стоимость</label>
+            <input type="number" class="form-control" id="cost" name="cost" required>
+        </div>
+        <div class="mb-3">
+            <label for="busId" class="form-label">Автобус</label>
+            <select id="busId" class="form-select" name="bus_id" required>
+                <option value="">Выберите автобус</option>
+                {% for bus in all_buses %}
+                <option value="{{ bus[0] }}">{{ bus[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="stops" class="form-label">Остановки</label>
+            <select id="stops" class="form-select" name="stops" multiple required>
+                {% for stop in all_stops %}
+                <option value="{{ stop[0] }}">{{ stop[1] }} - {{ stop[2] }}</option>
+                {% endfor %}
+            </select>
+            <small class="form-text text-muted">Выберите остановки, которые будут связаны с маршрутом.</small>
+        </div>
+        <button type="submit" class="btn btn-success">Создать маршрут</button>
+    </form>
+</div>
+
+<!-- Модальное окно для редактирования маршрута -->
+<div class="modal fade" id="editRouteModal" tabindex="-1" aria-labelledby="editRouteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editRouteModalLabel">Редактировать маршрут</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <form method="POST" id="editRouteForm" action="">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="editRouteName" class="form-label">Название маршрута</label>
+                        <input type="text" class="form-control" id="editRouteName" name="route_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editTravelTime" class="form-label">Время в пути</label>
+                        <input type="text" class="form-control" id="editTravelTime" name="travel_time" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editCost" class="form-label">Стоимость</label>
+                        <input type="number" class="form-control" id="editCost" name="cost" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                    <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Toast Notification -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1055;">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong id="toastTitle" class="me-auto"></strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div id="toastBody" class="toast-body"></div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Подключение JavaScript -->
+<script src="{{ url_for('static', filename='js/routes.js') }}"></script>
+<script src="{{ url_for('static', filename='js/toast_messages.js') }}"></script>
+
+<script>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            showToast(
+                {% if category == "success" %}
+                    "Успешно!"
+                {% elif category == "danger" %}
+                    "Ошибка!"
+                {% elif category == "info" %}
+                    "Информация"
+                {% else %}
+                    "Уведомление"
+                {% endif %},
+                "{{ message }}",
+                "{{ category }}"
+            );
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+</script>
+{% endblock %}
